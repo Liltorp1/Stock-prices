@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Live Stock Index</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+  h1 { margin-bottom: 20px; }
+  table { border-collapse: collapse; width: 100%; background: white; }
+  th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+  th { background: #333; color: white; }
+</style>
+</head>
+<body>
+
+<h1>Live Stock Prices</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Ticker</th>
+      <th>Name</th>
+      <th>Price</th>
+      <th>Change</th>
+      <th>Currency</th>
+    </tr>
+  </thead>
+  <tbody id="stocks"></tbody>
+</table>
+
+<script>
+const tickers = [
+  "VWS.CO",
+  "NOVO-B.CO",
+  "SAN.MC",
+  "IBE.MC",
+  "VWSB.DE"
+];
+
+async function fetchStock(ticker) {
+  const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${ticker}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.quoteResponse.result[0];
+}
+
+async function loadStocks() {
+  const tbody = document.getElementById("stocks");
+
+  for (const t of tickers) {
+    const s = await fetchStock(t);
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${t}</td>
+      <td>${s.longName || s.shortName}</td>
+      <td>${s.regularMarketPrice}</td>
+      <td style="color:${s.regularMarketChange >= 0 ? 'green' : 'red'};">
+        ${s.regularMarketChange.toFixed(2)} (${s.regularMarketChangePercent.toFixed(2)}%)
+      </td>
+      <td>${s.currency}</td>
+    `;
+    tbody.appendChild(row);
+  }
+}
+
+loadStocks();
+</script>
+
+</body>
+</html>
